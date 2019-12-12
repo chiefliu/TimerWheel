@@ -4,6 +4,10 @@
 #include <map>
 #include "boost/ref.hpp"
 #include <iostream>
+#include "boost/dynamic_bitset.hpp"
+#include "boost/utility/binary.hpp"
+#include "boost/bimap.hpp"
+#include "boost/typeof/typeof.hpp"
 
 using namespace std;
 
@@ -22,20 +26,14 @@ void add(boost::shared_ptr<CF_TimerWheel> wheel,long time)
 {
 	wheel->AddTimer(time,Once,&getinfo);
 }
-int main()
-{
 
+void RunTimeWheel()
+{
 	boost::shared_ptr<CF_TimerWheel> wheel = boost::make_shared<CF_TimerWheel>(1000);
 	wheel->Run();
-
-	for(int i = 1; i < 100; i++)
-	{
-
-	}
-
 	std::thread t1([&]()
 	{
-		wheel->AddTimer(15000,Once,&getinfo);
+		wheel->AddTimer(5000,Circle,&getinfo);
 	});
 	std::thread t2([&]()
 	{
@@ -50,5 +48,25 @@ int main()
 	{
 
 	}
+}
+
+int main()
+{
+	boost::bimap<int,string> bmp;
+
+	bmp.left.insert(make_pair(1,"abc"));
+
+	BOOST_AUTO(pos,bmp.right.find("abc"));
+	if(pos != bmp.right.end())
+	{
+		cout<<pos->second<<endl;
+	}
+	//int index = bmp.right["abc"];
+
+	
+
+
+
+
 	return 0;
 }

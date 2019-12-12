@@ -38,6 +38,7 @@ public:
 	TimerID   id_;
 	TimerStatus status_;
 	long  long  interval_;
+	long  long  shift_time_;
 
 	TimerEntity(long long interval,TimerType type,TimerFunc func,TimerID id)
 	{
@@ -98,6 +99,8 @@ public:
 
 
 private:
+
+	void AddTimerNoLock(long long interval,TimerType type,TimerFunc func,TimerID entity_id);
 
 	void StartClock();
 	void StopClock();

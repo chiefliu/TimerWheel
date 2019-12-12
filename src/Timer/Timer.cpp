@@ -39,6 +39,11 @@ void CF_TimerWheel::CheckExpire(time_t time)
 				}
 				timer_map_.erase(iter);
 			} 
+			if(entity.type_ == Circle)
+			{
+
+				AddTimerNoLock(entity.shift_time_,Circle,entity.func_,entity.id_);
+			}
 		}
 		else
 		{
@@ -100,16 +105,38 @@ TimerID CF_TimerWheel::GetNext()
 	}
 }
 
+void CF_TimerWheel::AddTimerNoLock(long long interval,TimerType type,TimerFunc func,TimerID entity_id)
+{
+	TimerID id = entity_id;
+	if(id != 0)
+	{
+		long long exe_interval = clock_->GetRoughTime()+ interval;
+
+		cout<<"Timer ID = "<<id<<"|| execute time = "<<interval<<endl;
+		TimerEntity entity(exe_interval,type,func,id);	
+		if(type == Circle)
+		{
+			entity.shift_time_ = interval;
+		}
+		timer_heap_->InsertElement(entity);
+		timer_map_.insert(make_pair(id,entity));
+	}
+}
+
 TimerID CF_TimerWheel::AddTimer(long long interval,TimerType type,TimerFunc func)
 {
 	std::unique_lock<std::mutex> lock(mutx_);
 	TimerID id = GetNext();
 	if(id != 0)
 	{
-		interval = clock_->GetRoughTime()+ interval;
+		long long exe_interval = clock_->GetRoughTime()+ interval;
 
 		cout<<"Timer ID = "<<id<<"|| execute time = "<<interval<<endl;
-		TimerEntity entity(interval,type,func,id);	
+		TimerEntity entity(exe_interval,type,func,id);	
+		if(type == Circle)
+		{
+			entity.shift_time_ = interval;
+		}
 		timer_heap_->InsertElement(entity);
 		timer_map_.insert(make_pair(id,entity));
 	}	
